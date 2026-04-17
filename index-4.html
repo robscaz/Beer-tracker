@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Holiday Bar Tab 🏖️</title>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+:root {
+  --bg:#0d1117; --surface:#161b22; --surface2:#1e2530;
+  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.12);
+  --text:#e6edf3; --muted:#7d8590; --muted2:#a0aab8;
+  --beer:#f0a500; --sangria:#c0392b; --wine:#9b59b6; --gin:#27ae60;
+  --shot:#e67e22; --rumpunch:#e91e8c; --tea:#a0785a; --other:#3498db;
+  --red:#e74c3c;
+}
+body { background:var(--bg); min-height:100vh; display:flex; justify-content:center; font-family:'Quicksand',sans-serif; color:var(--text); }
+.app { width:100%; max-width:420px; min-height:100vh; display:flex; flex-direction:column; position:relative; overflow-x:hidden; }
+.blob { position:fixed; border-radius:50%; filter:blur(90px); opacity:0.09; pointer-events:none; z-index:0; }
+.blob1 { width:300px; height:300px; background:var(--beer); top:-80px; right:-80px; }
+.blob2 { width:220px; height:220px; background:var(--sangria); bottom:100px; left:-70px; }
+.blob3 { width:160px; height:160px; background:var(--gin); bottom:340px; right:-40px; }
+.content { position:relative; z-index:1; flex:1; display:flex; flex-direction:column; }
+
+/* ── NAME SCREEN ── */
+#name-screen { position:fixed; inset:0; background:var(--bg); z-index:200; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px 24px; gap:16px; text-align:center; }
+.ns-logo { font-family:'Pacifico',cursive; font-size:34px; background:linear-gradient(135deg,#f0a500,#e67e22,#c0392b); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.ns-sub { color:var(--muted); font-size:13px; font-weight:600; line-height:1.6; max-width:280px; }
+.ns-tip { color:var(--gin); font-size:11px; font-weight:700; background:rgba(39,174,96,0.08); border:1px solid rgba(39,174,96,0.2); border-radius:10px; padding:9px 13px; max-width:300px; line-height:1.5; }
+.ns-box { width:100%; max-width:320px; background:var(--surface); border:1px solid var(--border2); border-radius:18px; padding:18px 16px; }
+.ns-box-title { font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:12px; }
+.ns-avatars { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-bottom:12px; }
+.nav { font-size:24px; cursor:pointer; border-radius:10px; padding:5px 7px; background:var(--surface2); border:2px solid transparent; transition:all 0.15s; }
+.nav:active { transform:scale(1.15); }
+.nav.sel { border-color:var(--beer); background:rgba(240,165,0,0.1); }
+.name-input { width:100%; background:var(--surface2); border:1.5px solid var(--border); border-radius:10px; padding:12px 14px; color:var(--text); font-family:'Quicksand',sans-serif; font-size:16px; font-weight:700; outline:none; text-align:center; transition:border-color 0.2s; }
+.name-input:focus { border-color:var(--beer); }
+.join-btn { width:100%; max-width:320px; background:linear-gradient(135deg,var(--beer),var(--shot)); border:none; border-radius:14px; padding:15px; color:#1a1208; font-family:'Quicksand',sans-serif; font-size:16px; font-weight:800; cursor:pointer; transition:transform 0.15s; box-shadow:0 4px 16px rgba(240,165,0,0.25); }
+.join-btn:active { transform:scale(0.97); }
+
+/* ── STATUS BAR ── */
+.status-bar { display:flex; justify-content:space-between; padding:10px 20px 4px; font-size:11px; font-weight:700; color:var(--muted); }
+
+/* ── HEADER ── */
+.header { text-align:center; padding:4px 20px 14px; }
+.logo { font-family:'Pacifico',cursive; font-size:26px; background:linear-gradient(135deg,#f0a500,#e67e22,#c0392b); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.you-tag { display:inline-flex; align-items:center; gap:6px; margin-top:5px; font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted); background:var(--surface); padding:5px 14px; border-radius:20px; border:1px solid var(--border2); cursor:pointer; transition:background 0.15s; }
+.you-tag:active { background:var(--surface2); }
+.you-tag b { color:var(--beer); font-weight:800; }
+.date-strip { font-size:11px; font-weight:700; color:var(--muted); text-align:center; padding:0 0 10px; letter-spacing:0.5px; }
+
+/* ── LEADERBOARD ── */
+.lb-section { margin:0 16px 12px; }
+.section-label { padding:0 0 7px; font-size:10px; font-weight:700; letter-spacing:2.5px; text-transform:uppercase; color:var(--muted); }
+.lb-card { background:var(--surface); border-radius:16px; border:1px solid var(--border); overflow:hidden; }
+.lb-row { display:flex; align-items:center; gap:9px; padding:10px 14px; border-bottom:1px solid var(--border); position:relative; overflow:hidden; }
+.lb-row:last-child { border-bottom:none; }
+.lb-row.is-you { background:rgba(240,165,0,0.06); }
+.lb-rank { font-family:'Pacifico',cursive; font-size:15px; width:20px; text-align:center; color:var(--muted); flex-shrink:0; }
+.lb-rank.gold{color:#f0c040}.lb-rank.silver{color:#aab0be}.lb-rank.bronze{color:#cd7f32}
+.lb-avatar { font-size:19px; flex-shrink:0; }
+.lb-name { font-weight:800; font-size:13px; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.you-badge { font-size:9px; font-weight:700; background:var(--beer); color:#1a1208; padding:1px 5px; border-radius:5px; margin-left:4px; vertical-align:middle; }
+.lb-chips { display:flex; gap:3px; flex-wrap:wrap; justify-content:flex-end; flex-shrink:0; max-width:90px; }
+.lb-chip { font-size:11px; font-weight:700; }
+.lb-total { font-family:'Pacifico',cursive; font-size:19px; color:var(--beer); width:26px; text-align:right; flex-shrink:0; }
+.lb-bar { position:absolute; bottom:0; left:0; height:2px; background:linear-gradient(90deg,var(--beer),var(--shot)); transition:width 0.5s ease; }
+.lb-empty { padding:20px; text-align:center; color:var(--muted); font-size:13px; font-style:italic; }
+.lb-del { display:none; width:26px; height:26px; border-radius:7px; background:rgba(231,76,60,0.1); border:1px solid rgba(231,76,60,0.25); color:var(--red); font-size:13px; cursor:pointer; flex-shrink:0; align-items:center; justify-content:center; transition:all 0.15s; }
+.lb-del:active { background:rgba(231,76,60,0.25); transform:scale(0.9); }
+.admin-active .lb-del { display:flex; }
+.admin-active .lb-row.is-you .lb-del { opacity:0.25; pointer-events:none; }
+
+/* ── DRINK GRID ── */
+.drinks-section { padding:0 16px 8px; }
+.drink-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.drink-card { background:var(--surface); border-radius:16px; padding:14px 12px 12px; border:1.5px solid var(--border); cursor:pointer; transition:transform 0.15s; position:relative; overflow:hidden; user-select:none; -webkit-user-select:none; }
+.drink-card::before { content:''; position:absolute; inset:0; background:var(--cc); opacity:0; transition:opacity 0.2s; border-radius:inherit; }
+.drink-card:active { transform:scale(0.95); }
+.drink-card:active::before,.drink-card.flash::before { opacity:0.12; }
+.drink-emoji { font-size:32px; line-height:1; display:block; margin-bottom:8px; transition:transform 0.15s; }
+.drink-card:active .drink-emoji { transform:scale(1.2) rotate(-5deg); }
+.drink-name { font-size:13px; font-weight:700; color:var(--text); margin-bottom:4px; }
+.drink-sub { font-size:10px; color:var(--muted); margin-bottom:4px; }
+.drink-count { font-family:'Pacifico',cursive; font-size:28px; line-height:1; }
+.drink-count.pop { animation:cpop 0.25s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes cpop{0%{transform:scale(1)}50%{transform:scale(1.4)}100%{transform:scale(1)}}
+.drink-bar { margin-top:8px; height:3px; background:var(--surface2); border-radius:3px; overflow:hidden; }
+.drink-bar-fill { height:100%; border-radius:3px; transition:width 0.4s cubic-bezier(0.34,1.56,0.64,1); opacity:0.75; }
+.drink-card.wide { grid-column:span 2; display:flex; align-items:center; gap:14px; padding:12px 16px; }
+.drink-card.wide .drink-emoji { margin-bottom:0; font-size:28px; }
+.drink-card.wide .drink-name { margin-bottom:0; }
+.drink-card.wide .drink-count { font-size:24px; }
+.drink-card.wide .drink-bar { margin-top:0; width:50px; }
+.drink-card.wide .di { flex:1; }
+.drink-card.wide .dr { display:flex; align-items:center; gap:10px; }
+.other-add { background:rgba(52,152,219,0.12); border:1px solid rgba(52,152,219,0.25); color:var(--other); font-size:11px; font-weight:800; padding:5px 11px; border-radius:8px; white-space:nowrap; }
+
+/* ── CONTROLS ── */
+.undo-bar { display:flex; gap:8px; padding:0 16px 8px; }
+.btn-u { flex:1; background:var(--surface); border:1px solid var(--border); border-radius:12px; color:var(--muted); font-family:'Quicksand',sans-serif; font-weight:700; font-size:13px; padding:11px; cursor:pointer; transition:all 0.15s; }
+.btn-u:active { transform:scale(0.97); }
+.btn-reset { background:rgba(192,57,43,0.1); border-color:rgba(192,57,43,0.2); color:var(--red); }
+.bottom-actions { display:flex; gap:8px; padding:0 16px 10px; }
+.btn-action { flex:1; border:none; border-radius:12px; font-family:'Quicksand',sans-serif; font-weight:800; font-size:12px; padding:11px 6px; cursor:pointer; transition:all 0.15s; }
+.btn-action:active { transform:scale(0.97); }
+.btn-stats { background:rgba(52,152,219,0.1); border:1px solid rgba(52,152,219,0.2); color:#5dade2; }
+.btn-admin { background:rgba(231,76,60,0.08); border:1px solid rgba(231,76,60,0.18); color:var(--red); }
+.btn-admin.active { background:rgba(231,76,60,0.18); border-color:rgba(231,76,60,0.4); }
+
+/* ── SYNC ── */
+.sync-bar { display:flex; align-items:center; justify-content:center; gap:6px; padding:2px 16px 14px; font-size:11px; font-weight:700; color:var(--muted); }
+.sync-dot { width:7px; height:7px; border-radius:50%; background:var(--muted); flex-shrink:0; transition:background 0.3s; }
+.sync-dot.ok { background:#27ae60; animation:pulse 2s infinite; }
+.sync-dot.err { background:var(--red); }
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+/* ── TOAST ── */
+.toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--surface2); border:1px solid var(--border2); color:var(--text); font-family:'Quicksand',sans-serif; font-weight:700; font-size:13px; padding:9px 20px; border-radius:24px; opacity:0; transition:all 0.3s; pointer-events:none; white-space:nowrap; z-index:400; box-shadow:0 8px 24px rgba(0,0,0,0.4); }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ── CONFETTI ── */
+.confetti-piece { position:fixed; pointer-events:none; z-index:500; animation:confetti-fall linear forwards; border-radius:2px; }
+@keyframes confetti-fall { 0%{transform:translateY(-10px) rotate(0deg);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+
+/* ── CHEERS OVERLAY ── */
+#cheers-overlay { position:fixed; inset:0; z-index:600; display:none; flex-direction:column; align-items:center; justify-content:center; background:rgba(0,0,0,0.82); backdrop-filter:blur(6px); cursor:pointer; }
+#cheers-overlay.show { display:flex; animation:fadeIn 0.3s ease; }
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+#cheers-overlay img { width:280px; max-width:80vw; border-radius:18px; box-shadow:0 20px 60px rgba(0,0,0,0.7); animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes popIn{from{transform:scale(0.4);opacity:0}to{transform:scale(1);opacity:1}}
+#cheers-overlay .cheers-msg { font-family:'Pacifico',cursive; font-size:28px; color:var(--beer); margin-top:20px; text-shadow:0 2px 12px rgba(0,0,0,0.8); }
+#cheers-overlay .cheers-sub { font-size:13px; color:rgba(255,255,255,0.5); margin-top:8px; font-weight:700; }
+
+/* ── LCFC EASTER EGG ── */
+#lcfc-banner { position:fixed; bottom:-160px; left:50%; transform:translateX(-50%); z-index:600;
+  background:linear-gradient(135deg,#003090,#0038b8); border:3px solid #ffd700;
+  border-radius:18px; padding:16px 28px; text-align:center;
+  transition:bottom 0.55s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow:0 8px 40px rgba(0,56,184,0.6); min-width:240px; }
+#lcfc-banner.show { bottom:44px; }
+#lcfc-banner .lcfc-fox { font-size:44px; }
+#lcfc-banner .lcfc-text { font-family:'Pacifico',cursive; font-size:18px; color:#ffd700; margin-top:6px; }
+#lcfc-banner .lcfc-sub { font-size:11px; font-weight:700; color:rgba(255,215,0,0.6); margin-top:3px; letter-spacing:1px; text-transform:uppercase; }
+
+/* ── MODALS ── */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:300; display:none; align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(4px); }
+.modal-overlay.open { display:flex; }
+.modal { background:var(--surface); border:1px solid var(--border2); border-radius:20px; width:100%; max-width:360px; overflow:hidden; }
+.modal-header { display:flex; align-items:center; justify-content:space-between; padding:16px 18px 12px; border-bottom:1px solid var(--border); }
+.modal-title { font-family:'Pacifico',cursive; font-size:18px; color:var(--text); }
+.modal-close { background:rgba(255,255,255,0.06); border:none; color:var(--muted); font-size:16px; width:28px; height:28px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.modal-body { padding:18px; max-height:72vh; overflow-y:auto; scrollbar-width:none; }
+.modal-body::-webkit-scrollbar { display:none; }
+
+/* PIN */
+.pin-dots { display:flex; gap:12px; justify-content:center; margin-bottom:20px; }
+.pin-dot { width:14px; height:14px; border-radius:50%; background:var(--surface2); border:2px solid var(--border2); transition:all 0.2s; }
+.pin-dot.on { background:var(--beer); border-color:var(--beer); box-shadow:0 0 8px rgba(240,165,0,0.4); }
+.pin-dot.err { background:var(--red); border-color:var(--red); animation:shake 0.3s; }
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.pin-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+.pin-btn { background:var(--surface2); border:1px solid var(--border2); border-radius:12px; color:var(--text); font-family:'Quicksand',sans-serif; font-weight:800; font-size:20px; padding:16px; cursor:pointer; transition:all 0.15s; }
+.pin-btn:active { transform:scale(0.93); }
+.pin-btn.sm { font-size:14px; color:var(--muted); }
+
+/* Custom drink */
+.custom-emoji-grid { display:flex; gap:7px; flex-wrap:wrap; justify-content:center; margin-bottom:12px; }
+.cem { font-size:26px; cursor:pointer; border-radius:10px; padding:5px 7px; background:var(--surface2); border:2px solid transparent; transition:all 0.15s; }
+.cem:active { transform:scale(1.15); }
+.cem.sel { border-color:var(--other); background:rgba(52,152,219,0.1); }
+.custom-name-input { width:100%; background:var(--surface2); border:1.5px solid var(--border); border-radius:10px; padding:12px 14px; color:var(--text); font-family:'Quicksand',sans-serif; font-size:15px; font-weight:700; outline:none; margin-bottom:12px; transition:border-color 0.2s; }
+.custom-name-input:focus { border-color:var(--other); }
+.custom-add-btn { width:100%; background:linear-gradient(135deg,var(--other),#2c3e9e); border:none; border-radius:12px; padding:13px; color:#fff; font-family:'Quicksand',sans-serif; font-size:15px; font-weight:800; cursor:pointer; transition:transform 0.15s; }
+.custom-add-btn:active { transform:scale(0.97); }
+
+/* Stats */
+.stats-tabs { display:flex; gap:5px; margin-bottom:14px; background:var(--surface2); border-radius:12px; padding:4px; }
+.stats-tab { flex:1; background:none; border:none; border-radius:9px; color:var(--muted); font-family:'Quicksand',sans-serif; font-weight:700; font-size:12px; padding:8px 4px; cursor:pointer; transition:all 0.2s; text-align:center; }
+.stats-tab.on { background:var(--surface); color:var(--text); box-shadow:0 1px 4px rgba(0,0,0,0.3); }
+.stat-leader { background:rgba(240,165,0,0.08); border:1px solid rgba(240,165,0,0.2); border-radius:14px; padding:14px; margin-bottom:12px; }
+.stat-leader-lbl { font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--beer); margin-bottom:4px; }
+.stat-leader-val { font-family:'Pacifico',cursive; font-size:20px; }
+.stat-leader-sub { font-size:12px; color:var(--muted); margin-top:3px; font-weight:600; }
+.stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+.stat-card { background:var(--surface2); border-radius:12px; padding:12px; text-align:center; border:1px solid var(--border); }
+.stat-val { font-family:'Pacifico',cursive; font-size:22px; }
+.stat-lbl { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-top:3px; }
+.brow-title { font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+.brow { display:flex; align-items:center; gap:9px; margin-bottom:7px; }
+.brow-label { width:58px; font-size:12px; font-weight:700; color:var(--muted2); display:flex; align-items:center; gap:3px; flex-shrink:0; }
+.brow-track { flex:1; height:6px; background:var(--surface2); border-radius:3px; overflow:hidden; }
+.brow-fill { height:100%; border-radius:3px; transition:width 0.5s ease; }
+.brow-num { width:22px; text-align:right; font-size:12px; font-weight:800; color:var(--text); }
+.person-block { margin-bottom:14px; }
+.person-hdr { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+.person-name { font-weight:800; font-size:14px; flex:1; }
+.person-total { font-family:'Pacifico',cursive; font-size:18px; color:var(--beer); }
+.divider { height:1px; background:var(--border); margin:10px 0; }
+.day-block { margin-bottom:18px; }
+.day-hdr { display:flex; justify-content:space-between; align-items:center; padding-bottom:7px; border-bottom:1px solid var(--border); margin-bottom:10px; }
+.day-name { font-family:'Pacifico',cursive; font-size:15px; color:var(--beer); }
+.day-total { font-size:12px; font-weight:700; color:var(--muted); }
+.day-person-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.day-person-av { font-size:16px; }
+.day-person-name { font-size:12px; font-weight:700; color:var(--muted2); width:52px; flex-shrink:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.day-person-chips { display:flex; flex-wrap:wrap; gap:4px; flex:1; }
+.day-chip { display:inline-flex; align-items:center; gap:3px; padding:3px 8px; border-radius:16px; font-size:11px; font-weight:700; border:1px solid; background:rgba(255,255,255,0.03); }
+.day-person-num { font-family:'Pacifico',cursive; font-size:16px; color:var(--beer); width:20px; text-align:right; flex-shrink:0; }
+.bottom-pad { height:20px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="blob blob1"></div><div class="blob blob2"></div><div class="blob blob3"></div>
+
+  <!-- NAME SCREEN -->
+  <div id="name-screen">
+    <div class="ns-logo">Holiday Bar Tab 🏖️</div>
+    <p class="ns-sub">Pick your emoji and enter your name to join the shared leaderboard!</p>
+    <div class="ns-tip">💡 Use the same name every time — your drinks are saved to your name so you always reconnect!</div>
+    <div class="ns-box">
+      <div class="ns-box-title">Who are you?</div>
+      <div class="ns-avatars" id="ns-avatars"></div>
+      <input class="name-input" id="name-input" type="text" maxlength="16" placeholder="Your name..." autocomplete="off"/>
+    </div>
+    <button class="join-btn" onclick="joinParty()">Join the Party 🎉</button>
+  </div>
+
+  <!-- APP -->
+  <div class="content">
+    <div class="status-bar"><span id="clock">09:41</span><span>🏖️ Bar Tab</span><span></span></div>
+    <div class="header">
+      <div class="logo">Holiday Bar Tab</div>
+      <div class="you-tag" id="you-tag" onclick="switchUser()">...</div>
+    </div>
+    <div class="date-strip" id="date-strip"></div>
+
+    <div class="lb-section">
+      <div class="section-label">🏆 Today's Leaderboard</div>
+      <div class="lb-card" id="lb-card"><div class="lb-empty">Connecting...</div></div>
+    </div>
+
+    <div class="drinks-section">
+      <div class="section-label">Your Drinks — Tap to Add</div>
+      <div class="drink-grid" id="drink-grid"></div>
+    </div>
+
+    <div class="undo-bar">
+      <button class="btn-u" onclick="undo()">↩ Undo Last</button>
+      <button class="btn-u btn-reset" onclick="resetMe()">✕ Reset Mine</button>
+    </div>
+    <div class="bottom-actions">
+      <button class="btn-action btn-stats" onclick="openStats()">📊 Stats &amp; History</button>
+      <button class="btn-action btn-admin" id="admin-btn" onclick="openAdmin()">🔐 Admin</button>
+    </div>
+    <div class="sync-bar">
+      <div class="sync-dot" id="sync-dot"></div>
+      <span id="sync-label">Connecting...</span>
+    </div>
+    <div class="bottom-pad"></div>
+  </div>
+</div>
+
+<!-- CHEERS OVERLAY (tap to close) -->
+<div id="cheers-overlay" onclick="closeCheers()">
+  <img src="https://media.giphy.com/media/l0MYGb1LuZ3n7dRnO/giphy.gif" alt="Cheers!"/>
+  <div class="cheers-msg">10 Drinks! 🎉</div>
+  <div class="cheers-sub">Tap anywhere to close</div>
+</div>
+
+<!-- LCFC EASTER EGG -->
+<div id="lcfc-banner">
+  <div class="lcfc-fox">🦊</div>
+  <div class="lcfc-text">Going Down! 😂</div>
+  <div class="lcfc-sub">Leicester City FC</div>
+</div>
+
+<!-- PIN MODAL -->
+<div class="modal-overlay" id="pin-modal">
+  <div class="modal">
+    <div class="modal-header"><span class="modal-title">🔐 Admin</span><button class="modal-close" onclick="closePin()">✕</button></div>
+    <div class="modal-body">
+      <div class="pin-dots"><div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div><div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div></div>
+      <div class="pin-grid">
+        <button class="pin-btn" onclick="pp('1')">1</button><button class="pin-btn" onclick="pp('2')">2</button><button class="pin-btn" onclick="pp('3')">3</button>
+        <button class="pin-btn" onclick="pp('4')">4</button><button class="pin-btn" onclick="pp('5')">5</button><button class="pin-btn" onclick="pp('6')">6</button>
+        <button class="pin-btn" onclick="pp('7')">7</button><button class="pin-btn" onclick="pp('8')">8</button><button class="pin-btn" onclick="pp('9')">9</button>
+        <button class="pin-btn sm" onclick="pp('')"></button><button class="pin-btn" onclick="pp('0')">0</button><button class="pin-btn sm" onclick="pdel()">⌫</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CUSTOM DRINK MODAL -->
+<div class="modal-overlay" id="custom-modal">
+  <div class="modal">
+    <div class="modal-header"><span class="modal-title">🍹 Custom Drink</span><button class="modal-close" onclick="closeCustom()">✕</button></div>
+    <div class="modal-body">
+      <div class="custom-emoji-grid" id="custom-emojis"></div>
+      <input class="custom-name-input" id="custom-name" type="text" maxlength="20" placeholder="What are you drinking?"/>
+      <button class="custom-add-btn" onclick="addCustom()">Add Drink ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- STATS MODAL -->
+<div class="modal-overlay" id="stats-modal">
+  <div class="modal">
+    <div class="modal-header"><span class="modal-title">📊 Stats &amp; History</span><button class="modal-close" onclick="closeStats()">✕</button></div>
+    <div class="modal-body">
+      <div class="stats-tabs">
+        <button class="stats-tab on" id="stab-summary" onclick="stab('summary')">Summary</button>
+        <button class="stats-tab"    id="stab-people"  onclick="stab('people')">People</button>
+        <button class="stats-tab"    id="stab-history" onclick="stab('history')">History</button>
+      </div>
+      <div id="stats-content"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getDatabase, ref, update, remove, onValue } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+const FB = {
+  apiKey:"AIzaSyAkXiiB1mrsnxSUgTDsUMoV6swqH49WXgw",
+  authDomain:"beer-log-5448a.firebaseapp.com",
+  projectId:"beer-log-5448a",
+  databaseURL:"https://beer-log-5448a-default-rtdb.firebaseio.com",
+  storageBucket:"beer-log-5448a.firebasestorage.app",
+  messagingSenderId:"825900895416",
+  appId:"1:825900895416:web:dca4cc6ca32df4645b384d"
+};
+
+const DRINKS = [
+  {id:'beer',     name:'Beer',      emoji:'🍺', color:'#f0a500', max:10},
+  {id:'sangria',  name:'Sangria',   emoji:'🥂', color:'#c0392b', max:8},
+  {id:'wine',     name:'Wine',      emoji:'🍷', color:'#9b59b6', max:8},
+  {id:'gin',      name:'Gin',       emoji:'🍸', color:'#27ae60', max:8},
+  {id:'rumpunch', name:'Rum Punch', emoji:'🍹', color:'#e91e8c', max:10},
+  {id:'tea',      name:'Tea',       emoji:'🫖', color:'#a0785a', max:10},
+  {id:'shot',     name:'Shots',     emoji:'🥃', color:'#e67e22', max:12, wide:true},
+];
+const OTHER_EMOJIS = ['🍹','🧉','🫗','🥤','🍾','☕','🧋','🫖','🍵','🥛'];
+const AVTS = ['🤠','😎','🥳','🤩','🌴','🦩','🐻','🦊','🐸','🤖','👑','🎉'];
+const PIN  = '1234';
+
+// ── Date helpers ──────────────────────────────────────────
+function today(){ return new Date().toISOString().slice(0,10); }
+function fmtDate(d){
+  const dt=new Date(d+'T12:00:00');
+  const DN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  return `${DN[dt.getDay()]} ${dt.getDate()}/${dt.getMonth()+1}`;
+}
+function todayLabel(){
+  const dt=new Date();
+  const DN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${DN[dt.getDay()]} ${dt.getDate()} ${MN[dt.getMonth()]}`;
+}
+
+// ── Identity ──────────────────────────────────────────────
+function nameToId(n){ return n.toLowerCase().replace(/[^a-z0-9]/g,'_').slice(0,20); }
+function loadId(){
+  const hash=decodeURIComponent(window.location.hash.slice(1));
+  if(hash){ const[n,av]=hash.split(':'); return{name:n||'',av:av||localStorage.getItem('hbt-av')||'😎'}; }
+  return{name:localStorage.getItem('hbt-name')||'',av:localStorage.getItem('hbt-av')||'😎'};
+}
+function saveId(name,av){
+  localStorage.setItem('hbt-name',name); localStorage.setItem('hbt-av',av);
+  window.location.hash=encodeURIComponent(name)+':'+encodeURIComponent(av);
+}
+const _i=loadId();
+let myName=_i.name, myAv=_i.av, myId=myName?nameToId(myName):'';
+let allUsers={}, db, myRef, adminMode=false, pinStr='', statsTab='summary', selEmoji='🍹';
+
+// ── Sound ─────────────────────────────────────────────────
+function playDrinkSound(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type='sine';
+    osc.frequency.setValueAtTime(880,ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(440,ctx.currentTime+0.12);
+    gain.gain.setValueAtTime(0.25,ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.22);
+    osc.start(ctx.currentTime); osc.stop(ctx.currentTime+0.25);
+  }catch(e){}
+}
+
+// ── Confetti ──────────────────────────────────────────────
+function launchConfetti(){
+  const colors=['#f0a500','#c0392b','#9b59b6','#27ae60','#e67e22','#3498db','#e91e8c','#ffffff','#ffd700'];
+  for(let i=0;i<70;i++){
+    const el=document.createElement('div');
+    el.className='confetti-piece';
+    const size=6+Math.random()*8;
+    el.style.cssText=`
+      left:${10+Math.random()*80}vw;
+      top:-10px;
+      width:${size}px;
+      height:${size}px;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      border-radius:${Math.random()>0.4?'50%':'2px'};
+      animation-duration:${1.8+Math.random()*2}s;
+      animation-delay:${Math.random()*0.6}s;
+    `;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),4000);
+  }
+}
+
+// ── Cheers overlay ────────────────────────────────────────
+function showCheers(){
+  document.getElementById('cheers-overlay').classList.add('show');
+  setTimeout(()=>closeCheers(),6000);
+}
+window.closeCheers=()=>document.getElementById('cheers-overlay').classList.remove('show');
+
+// ── LCFC easter egg ───────────────────────────────────────
+function showLCFC(){
+  const b=document.getElementById('lcfc-banner');
+  b.classList.add('show');
+  setTimeout(()=>b.classList.remove('show'),4500);
+}
+
+// ── Post-drink effects ────────────────────────────────────
+function triggerEffects(type, newDayTotal){
+  playDrinkSound();
+  if(newDayTotal>0 && newDayTotal%5===0) setTimeout(launchConfetti, 200);
+  if(newDayTotal===10) setTimeout(showCheers, 500);
+  if(myName.toLowerCase().includes('tommy') && type==='shot') setTimeout(showLCFC, 300);
+}
+
+// ── Avatars ───────────────────────────────────────────────
+function buildAvatars(){
+  document.getElementById('ns-avatars').innerHTML=AVTS.map(a=>
+    `<div class="nav${a===myAv?' sel':''}" onclick="window._av('${a}')">${a}</div>`).join('');
+}
+window._av=a=>{myAv=a;document.querySelectorAll('.nav').forEach(e=>e.classList.toggle('sel',e.textContent===a));};
+
+// ── Join / Switch ─────────────────────────────────────────
+window.joinParty=()=>{
+  const n=document.getElementById('name-input').value.trim();
+  if(!n){showToast('Enter your name! 👆');return;}
+  myName=n; myId=nameToId(n); saveId(myName,myAv);
+  document.getElementById('name-screen').style.display='none';
+  connectUser();
+};
+window.switchUser=()=>{
+  if(!confirm('Switch to a different name?'))return;
+  localStorage.removeItem('hbt-name'); localStorage.removeItem('hbt-av');
+  window.location.hash=''; myName=''; myId=''; myAv='😎';
+  buildAvatars(); document.getElementById('name-input').value='';
+  document.getElementById('name-screen').style.display='flex';
+};
+async function connectUser(){
+  myRef=ref(db,'users/'+myId);
+  await update(myRef,{name:myName,avatar:myAv,ts:Date.now()});
+}
+
+// ── Firebase ──────────────────────────────────────────────
+function initFB(){
+  try{
+    const app=initializeApp(FB); db=getDatabase(app);
+    onValue(ref(db,'users'),snap=>{allUsers=snap.val()||{};render();setSyncOk();});
+    buildGrid();
+    document.getElementById('date-strip').textContent=todayLabel();
+    if(myName){document.getElementById('name-screen').style.display='none';myRef=ref(db,'users/'+myId);connectUser();}
+  }catch(e){console.error(e);setSyncErr();showToast('Firebase error ❌');}
+}
+function setSyncOk(){document.getElementById('sync-dot').className='sync-dot ok';document.getElementById('sync-label').textContent='Live 🔴 Real-time sync';}
+function setSyncErr(){document.getElementById('sync-dot').className='sync-dot err';document.getElementById('sync-label').textContent='Connection error ❌';}
+
+// ── Add drink ─────────────────────────────────────────────
+window.addDrink=async type=>{
+  if(!db||!myId)return;
+  const cur=allUsers[myId]?.days?.[today()]?.drinks?.[type]||0;
+  const stack=[...(allUsers[myId]?.days?.[today()]?.stack||[])];
+  stack.push(type); if(stack.length>50)stack.shift();
+  await update(ref(db,`users/${myId}/days/${today()}`),{[`drinks/${type}`]:cur+1,stack});
+  await update(myRef,{ts:Date.now()});
+  // Calculate new total for effects
+  const newTotal=Object.values({...allUsers[myId]?.days?.[today()]?.drinks||{},[type]:cur+1}).reduce((a,b)=>a+b,0);
+  flashCard(type); popCount(type); showToast(getToast(type,cur+1));
+  triggerEffects(type, newTotal);
+};
+
+// ── Custom drink ──────────────────────────────────────────
+window.openCustom=()=>{
+  selEmoji='🍹';
+  document.getElementById('custom-emojis').innerHTML=OTHER_EMOJIS.map(e=>
+    `<div class="cem${e===selEmoji?' sel':''}" onclick="window._cem('${e}')">${e}</div>`).join('');
+  document.getElementById('custom-name').value='';
+  document.getElementById('custom-modal').classList.add('open');
+};
+window._cem=e=>{selEmoji=e;document.querySelectorAll('.cem').forEach(el=>el.classList.toggle('sel',el.textContent===e));};
+window.closeCustom=()=>document.getElementById('custom-modal').classList.remove('open');
+window.addCustom=async()=>{
+  if(!db||!myId)return;
+  const name=document.getElementById('custom-name').value.trim();
+  if(!name){showToast('Name your drink! 👆');return;}
+  const typeId='c_'+nameToId(name);
+  const cur=allUsers[myId]?.days?.[today()]?.drinks?.[typeId]||0;
+  const stack=[...(allUsers[myId]?.days?.[today()]?.stack||[])];
+  stack.push(typeId); if(stack.length>50)stack.shift();
+  await update(ref(db,`users/${myId}/customs`),{[typeId]:{name,emoji:selEmoji}});
+  await update(ref(db,`users/${myId}/days/${today()}`),{[`drinks/${typeId}`]:cur+1,stack});
+  await update(myRef,{ts:Date.now()});
+  const newTotal=Object.values({...allUsers[myId]?.days?.[today()]?.drinks||{},[typeId]:cur+1}).reduce((a,b)=>a+b,0);
+  closeCustom(); showToast(`${selEmoji} ${name} logged!`);
+  triggerEffects(typeId, newTotal);
+};
+
+// ── Undo ──────────────────────────────────────────────────
+window.undo=async()=>{
+  if(!db||!myId)return;
+  const drinks=allUsers[myId]?.days?.[today()]?.drinks||{};
+  const stack=allUsers[myId]?.days?.[today()]?.stack||[];
+  if(!stack.length){showToast('Nothing to undo! 🤷');return;}
+  const last=stack[stack.length-1];
+  const newStack=stack.slice(0,-1);
+  const cur=drinks[last]||0;
+  await update(ref(db,`users/${myId}/days/${today()}`),{[`drinks/${last}`]:Math.max(0,cur-1),stack:newStack});
+  showToast('Last drink removed ↩');
+};
+
+// ── Reset ─────────────────────────────────────────────────
+window.resetMe=async()=>{
+  if(!db||!myId||!confirm('Reset YOUR drinks for today?'))return;
+  await update(ref(db,`users/${myId}/days/${today()}`),{drinks:{},stack:[]});
+  showToast('Today wiped clean 🧹');
+};
+
+// ── Admin ─────────────────────────────────────────────────
+window.deleteUser=async uid=>{
+  const u=allUsers[uid];if(!u)return;
+  if(!confirm(`Remove ${u.name}?`))return;
+  await remove(ref(db,'users/'+uid)); showToast(`${u.name} removed 🗑️`);
+};
+window.openAdmin=()=>{
+  if(adminMode){toggleAdmin(false);return;}
+  pinStr=''; updPins(); document.getElementById('pin-modal').classList.add('open');
+};
+window.closePin=()=>{document.getElementById('pin-modal').classList.remove('open');pinStr='';updPins();};
+window.pp=d=>{
+  if(!d||pinStr.length>=4)return; pinStr+=d; updPins();
+  if(pinStr.length===4){
+    if(pinStr===PIN){setTimeout(()=>{closePin();toggleAdmin(true);},200);}
+    else{
+      document.querySelectorAll('.pin-dot').forEach(e=>e.classList.add('err'));
+      setTimeout(()=>{pinStr='';updPins();document.querySelectorAll('.pin-dot').forEach(e=>e.classList.remove('err'));},600);
+    }
+  }
+};
+window.pdel=()=>{pinStr=pinStr.slice(0,-1);updPins();};
+function updPins(){for(let i=0;i<4;i++)document.getElementById('pd'+i).classList.toggle('on',i<pinStr.length);}
+function toggleAdmin(on){
+  adminMode=on;
+  document.getElementById('lb-card').classList.toggle('admin-active',on);
+  const b=document.getElementById('admin-btn'); b.classList.toggle('active',on);
+  b.textContent=on?'🔓 Admin ON':'🔐 Admin';
+  showToast(on?'Admin mode — tap 🗑️ to remove':'Admin mode off');
+}
+
+// ── Stats ─────────────────────────────────────────────────
+window.openStats=()=>{renderStats();document.getElementById('stats-modal').classList.add('open');};
+window.closeStats=()=>document.getElementById('stats-modal').classList.remove('open');
+window.stab=t=>{
+  statsTab=t;
+  ['summary','people','history'].forEach(s=>document.getElementById('stab-'+s).classList.toggle('on',s===t));
+  renderStats();
+};
+
+function todayTotal(u){ return Object.values(u?.days?.[today()]?.drinks||{}).reduce((a,b)=>a+b,0); }
+function getDrinksForDay(u,day){
+  const d=u?.days?.[day]?.drinks||{};
+  const c=u?.customs||{};
+  const base=DRINKS.map(dr=>({id:dr.id,name:dr.name,emoji:dr.emoji,color:dr.color,n:d[dr.id]||0}));
+  const cust=Object.entries(c).map(([id,m])=>({id,name:m.name,emoji:m.emoji,color:'#3498db',n:d[id]||0}));
+  return[...base,...cust].filter(dr=>dr.n>0);
+}
+
+function renderStats(){
+  const el=document.getElementById('stats-content');
+  const users=Object.entries(allUsers).filter(([,u])=>u?.name)
+    .map(([uid,u])=>({...u,uid,todayTot:todayTotal(u),isMe:uid===myId}))
+    .sort((a,b)=>b.todayTot-a.todayTot);
+
+  if(statsTab==='summary'){
+    if(!users.length){el.innerHTML='<p style="color:var(--muted);text-align:center;padding:20px;font-style:italic">No data yet 🌴</p>';return;}
+    const grand=users.reduce((a,u)=>a+u.todayTot,0);
+    const leader=users[0];
+    const dm={};
+    users.forEach(u=>getDrinksForDay(u,today()).forEach(d=>{if(!dm[d.id])dm[d.id]={...d,n:0};dm[d.id].n+=d.n;}));
+    const dl=Object.values(dm).sort((a,b)=>b.n-a.n);
+    const top=dl[0]||{emoji:'🤷'};
+    el.innerHTML=`
+      <div class="stat-leader">
+        <div class="stat-leader-lbl">🥇 Today's Leader</div>
+        <div class="stat-leader-val">${leader.avatar||'😎'} ${leader.name}</div>
+        <div class="stat-leader-sub">${leader.todayTot} drinks today · ${leader.isMe?"That's you! 🎉":'Keep going!'}</div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-val" style="color:var(--beer)">${grand}</div><div class="stat-lbl">Today Total</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:var(--gin)">${users.length}</div><div class="stat-lbl">People</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:var(--wine)">${grand?Math.round(grand/users.length):0}</div><div class="stat-lbl">Avg / Person</div></div>
+        <div class="stat-card"><div class="stat-val">${top.emoji}</div><div class="stat-lbl">Most Popular</div></div>
+      </div>
+      ${dl.length?`<div class="brow-title">Today's Drink Breakdown</div>${dl.map(d=>`
+        <div class="brow">
+          <div class="brow-label">${d.emoji} ${d.name.slice(0,7)}</div>
+          <div class="brow-track"><div class="brow-fill" style="width:${grand?Math.round(d.n/grand*100):0}%;background:${d.color}"></div></div>
+          <div class="brow-num">${d.n}</div>
+        </div>`).join('')}`:'<p style="color:var(--muted);font-size:13px;text-align:center">No drinks logged today yet</p>'}`;
+
+  } else if(statsTab==='people'){
+    if(!users.length){el.innerHTML='<p style="color:var(--muted);text-align:center;padding:20px;font-style:italic">No data yet</p>';return;}
+    el.innerHTML=users.map((u,i)=>{
+      const drinks=getDrinksForDay(u,today());
+      const mx=Math.max(...drinks.map(d=>d.n),1);
+      return`<div class="person-block">
+        <div class="person-hdr">
+          <span style="font-size:19px">${u.avatar||'😎'}</span>
+          <span class="person-name">${u.name}${u.isMe?' <span style="font-size:9px;background:var(--beer);color:#1a1208;padding:1px 5px;border-radius:5px;vertical-align:middle">YOU</span>':''}</span>
+          <span class="person-total">${u.todayTot}</span>
+        </div>
+        ${drinks.length?drinks.map(d=>`<div class="brow">
+          <div class="brow-label">${d.emoji} ${d.name.slice(0,7)}</div>
+          <div class="brow-track"><div class="brow-fill" style="width:${Math.round(d.n/mx*100)}%;background:${d.color}"></div></div>
+          <div class="brow-num">${d.n}</div>
+        </div>`).join(''):'<p style="color:var(--muted);font-size:12px;margin-bottom:4px">No drinks yet today</p>'}
+        ${i<users.length-1?'<div class="divider"></div>':''}
+      </div>`;
+    }).join('');
+
+  } else {
+    // History by day
+    const allDays=new Set();
+    Object.values(allUsers).filter(u=>u?.name).forEach(u=>Object.keys(u.days||{}).forEach(d=>allDays.add(d)));
+    const sortedDays=[...allDays].sort().reverse();
+    if(!sortedDays.length){el.innerHTML='<p style="color:var(--muted);text-align:center;padding:20px;font-style:italic">No history yet — get drinking! 🍺</p>';return;}
+    el.innerHTML=sortedDays.map(day=>{
+      const isToday=day===today();
+      const label=isToday?`Today (${fmtDate(day)})`:fmtDate(day);
+      const dayUsers=Object.values(allUsers).filter(u=>u?.name&&u?.days?.[day])
+        .map(u=>({...u,dayTot:Object.values(u.days[day].drinks||{}).reduce((a,b)=>a+b,0)}))
+        .filter(u=>u.dayTot>0).sort((a,b)=>b.dayTot-a.dayTot);
+      if(!dayUsers.length)return'';
+      const grandDay=dayUsers.reduce((a,u)=>a+u.dayTot,0);
+      return`<div class="day-block">
+        <div class="day-hdr">
+          <span class="day-name">${label}</span>
+          <span class="day-total">${grandDay} drinks</span>
+        </div>
+        ${dayUsers.map(u=>{
+          const drinks=getDrinksForDay(u,day);
+          const isMe=nameToId(u.name)===myId;
+          return`<div class="day-person-row">
+            <span class="day-person-av">${u.avatar||'😎'}</span>
+            <span class="day-person-name">${u.name}${isMe?' ·':''}</span>
+            <div class="day-person-chips">${drinks.map(d=>`<span class="day-chip" style="color:${d.color};border-color:${d.color}33">${d.emoji} ${d.n}</span>`).join('')}</div>
+            <span class="day-person-num">${u.dayTot}</span>
+          </div>`;
+        }).join('')}
+      </div>`;
+    }).join('');
+  }
+}
+
+// ── Main render ───────────────────────────────────────────
+function render(){
+  const me=allUsers[myId];
+  const myTot=todayTotal(me);
+  document.getElementById('you-tag').innerHTML=`${myAv} <b>${myName||'...'}</b> &nbsp;·&nbsp; ${myTot} 🍺 today`;
+  document.getElementById('date-strip').textContent=todayLabel();
+
+  const el=document.getElementById('lb-card');
+  const users=Object.entries(allUsers).filter(([,u])=>u?.name)
+    .map(([uid,u])=>({...u,uid,tot:todayTotal(u),isMe:uid===myId}))
+    .sort((a,b)=>b.tot-a.tot);
+
+  if(!users.length){el.innerHTML='<div class="lb-empty">No one here yet 🌴</div>';}
+  else{
+    const mx=users[0].tot||1, rnk=['🥇','🥈','🥉'];
+    el.innerHTML=users.map((u,i)=>{
+      const chips=getDrinksForDay(u,today()).slice(0,4).map(d=>`<span class="lb-chip">${d.emoji}${d.n}</span>`).join('');
+      const rc=i===0?'gold':i===1?'silver':i===2?'bronze':'';
+      return`<div class="lb-row${u.isMe?' is-you':''}">
+        <div class="lb-rank ${rc}">${rnk[i]||i+1}</div>
+        <div class="lb-avatar">${u.avatar||'😎'}</div>
+        <div class="lb-name">${u.name}${u.isMe?'<span class="you-badge">YOU</span>':''}</div>
+        <div class="lb-chips">${chips||'<span style="color:var(--muted);font-size:10px">none yet</span>'}</div>
+        <div class="lb-total">${u.tot}</div>
+        <button class="lb-del" onclick="deleteUser('${u.uid}')">🗑️</button>
+        <div class="lb-bar" style="width:${Math.round(u.tot/mx*100)}%"></div>
+      </div>`;
+    }).join('');
+    if(adminMode)el.classList.add('admin-active');
+  }
+
+  if(me) DRINKS.forEach(d=>{
+    const c=me.days?.[today()]?.drinks?.[d.id]||0;
+    const ce=document.getElementById('cnt-'+d.id), be=document.getElementById('bar-'+d.id);
+    if(ce)ce.textContent=c; if(be)be.style.width=Math.min(c/d.max*100,100)+'%';
+  });
+}
+
+// ── Grid ──────────────────────────────────────────────────
+function buildGrid(){
+  const g=document.getElementById('drink-grid');g.innerHTML='';
+  DRINKS.forEach(d=>{
+    const card=document.createElement('div');
+    card.className='drink-card'+(d.wide?' wide':'');
+    card.id='card-'+d.id; card.style.setProperty('--cc',d.color);
+    card.onclick=()=>window.addDrink(d.id);
+    if(d.wide){
+      card.innerHTML=`<span class="drink-emoji">${d.emoji}</span>
+        <div class="di"><div class="drink-name">${d.name}</div></div>
+        <div class="dr"><div class="drink-bar"><div class="drink-bar-fill" id="bar-${d.id}" style="background:${d.color}"></div></div>
+        <span class="drink-count" id="cnt-${d.id}" style="color:${d.color}">0</span></div>`;
+    }else{
+      card.innerHTML=`<span class="drink-emoji">${d.emoji}</span>
+        <div class="drink-name">${d.name}</div>
+        <span class="drink-count" id="cnt-${d.id}" style="color:${d.color}">0</span>
+        <div class="drink-bar"><div class="drink-bar-fill" id="bar-${d.id}" style="background:${d.color}"></div></div>`;
+    }
+    g.appendChild(card);
+  });
+  const oc=document.createElement('div');
+  oc.className='drink-card wide'; oc.style.setProperty('--cc','#3498db');
+  oc.onclick=()=>window.openCustom();
+  oc.innerHTML=`<span class="drink-emoji">🍹</span>
+    <div class="di"><div class="drink-name">Other</div><div class="drink-sub">Tap to name it</div></div>
+    <div class="dr"><span class="other-add">+ Add</span></div>`;
+  g.appendChild(oc);
+}
+
+// ── Helpers ───────────────────────────────────────────────
+function flashCard(t){const e=document.getElementById('card-'+t);if(!e)return;e.classList.add('flash');setTimeout(()=>e.classList.remove('flash'),300);}
+function popCount(t){const e=document.getElementById('cnt-'+t);if(!e)return;e.classList.remove('pop');void e.offsetWidth;e.classList.add('pop');}
+function getToast(type,n){
+  const m={
+    beer:    ['First pint! 🍺','Two beers! 👍','Three pints!','Four! Steady on 😄','Five pints 😮'],
+    sangria: ['Sangria time! 🥂','Muy bien! 💃','Three sangrias!','Olé! 🇪🇸','Five sangrias!'],
+    wine:    ['A glass of wine 🍷','Two wines!','Three glasses 🍾','Four wines 😬','Five! Sommelier mode'],
+    gin:     ['G&T time! 🍸','Two gins! 🌿','Three G&Ts!','Four gins! 🍀','Five... crikey'],
+    rumpunch:['Rum punch! 🍹','Two rum punches!','Three! Tropical mode 🌴','Four rum punches 😵','Five! Send a boat 🚤'],
+    tea:     ['A nice cuppa 🫖','Two teas!','Three teas ☕','Four teas... sober? 😇','Five teas! Saint 🏅'],
+    shot:    ['Shots fired! 🥃','Two shots!','THREE SHOTS 🚀','FOUR SHOTS 🎪','FIVE!! 🆘'],
+  };
+  const a=m[type]||[];return a[Math.min(n-1,a.length-1)]||`${n} drinks! 🎉`;
+}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2500);}
+function updateClock(){document.getElementById('clock').textContent=new Date().toTimeString().slice(0,5);}
+
+// ── Init ──────────────────────────────────────────────────
+buildAvatars(); updateClock(); setInterval(updateClock,30000);
+document.getElementById('name-input').addEventListener('keydown',e=>{if(e.key==='Enter')window.joinParty();});
+initFB();
+</script>
+</body>
+</html>
